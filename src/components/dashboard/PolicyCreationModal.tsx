@@ -47,6 +47,7 @@ import TransferLimitRule from "./TransferLimitRule";
 import RiskProfileRule from "./RiskProfileRule";
 import AccreditedInvestorRule from "./AccreditedInvestorRule";
 import TokenizedFundRule from "./TokenizedFundRule";
+import RedemptionRule from "./RedemptionRule";
 
 interface PolicyCreationModalProps {
   open?: boolean;
@@ -459,6 +460,7 @@ const PolicyCreationModal = ({
                       <SelectItem value="tokenized_fund">
                         Tokenized Fund
                       </SelectItem>
+                      <SelectItem value="redemption">Redemption</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -510,6 +512,10 @@ const PolicyCreationModal = ({
 
                   {selectedRuleType === "tokenized_fund" && (
                     <TokenizedFundRule onSave={handleSpecificRuleAdd} />
+                  )}
+
+                  {selectedRuleType === "redemption" && (
+                    <RedemptionRule onSave={handleSpecificRuleAdd} />
                   )}
 
                   {!selectedRuleType && policyData.rules.length > 0 && (
@@ -667,6 +673,16 @@ const PolicyCreationModal = ({
                                           drawdown
                                         </>
                                       );
+                                    case "redemption":
+                                      return (
+                                        <>
+                                          Redemption:{" "}
+                                          {rule.requireMultiSigApproval
+                                            ? `${rule.requiredApprovers}/${rule.totalApprovers} approvers`
+                                            : "No multi-sig"}
+                                          ,{rule.settlementMethod} settlement
+                                        </>
+                                      );
                                     case "transfer_limit":
                                       return (
                                         <>
@@ -707,6 +723,8 @@ const PolicyCreationModal = ({
                                     return "bg-green-100 text-green-800";
                                   case "tokenized_fund":
                                     return "bg-blue-100 text-blue-800";
+                                  case "redemption":
+                                    return "bg-indigo-100 text-indigo-800";
                                   case "transfer_limit":
                                     return "bg-blue-100 text-blue-800";
                                   default:
@@ -738,6 +756,8 @@ const PolicyCreationModal = ({
                                     return "Accredited Investor";
                                   case "tokenized_fund":
                                     return "Tokenized Fund";
+                                  case "redemption":
+                                    return "Redemption";
                                   case "transfer_limit":
                                     return "Transfer Limit";
                                   default:
