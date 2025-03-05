@@ -19,6 +19,7 @@ interface DashboardHeaderProps {
   onProfileClick?: () => void;
   onSettingsClick?: () => void;
   onNotificationsClick?: () => void;
+  onTemplatesClick?: () => void;
   onSearch?: (searchTerm: string) => void;
 }
 
@@ -29,6 +30,7 @@ const DashboardHeader = ({
   onProfileClick = () => {},
   onSettingsClick = () => {},
   onNotificationsClick = () => {},
+  onTemplatesClick = () => {},
   onSearch = () => {},
 }: DashboardHeaderProps) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,6 +91,29 @@ const DashboardHeader = ({
         >
           <Bell className="h-5 w-5" />
           <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full"></span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onTemplatesClick}
+          className="text-gray-500 hover:text-gray-700"
+          title="Templates"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 8h12M6 12h12M6 16h8" />
+            <rect width="18" height="18" x="3" y="3" rx="2" />
+          </svg>
         </Button>
 
         <Button

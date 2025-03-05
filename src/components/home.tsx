@@ -6,6 +6,7 @@ import PolicyDetailsPanel from "./dashboard/PolicyDetailsPanel";
 import PolicyAnalytics from "./dashboard/PolicyAnalytics";
 import DeletePolicyDialog from "./dashboard/DeletePolicyDialog";
 import ApprovalDashboard from "./dashboard/ApprovalDashboard";
+import PolicyTemplatesTab from "./dashboard/PolicyTemplatesTab";
 
 interface Policy {
   id: string;
@@ -31,10 +32,12 @@ const Home = () => {
   const [showDetailsPanel, setShowDetailsPanel] = useState(false);
   const [showAnalytics, setShowAnalytics] = useState(false);
   const [showApprovals, setShowApprovals] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
   const [selectedPolicy, setSelectedPolicy] = useState<Policy | null>(null);
   const [policyToDelete, setPolicyToDelete] = useState<Policy | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [policyTemplates, setPolicyTemplates] = useState<any[]>([]);
   const [policies, setPolicies] = useState<Policy[]>([
     {
       id: "policy-1",
@@ -204,6 +207,37 @@ const Home = () => {
     setShowCreateModal(true);
   };
 
+  const handleSaveAsTemplate = (templateData: any) => {
+    const newTemplate = {
+      ...templateData,
+      id: `template-${policyTemplates.length + 1}`,
+    };
+    setPolicyTemplates([...policyTemplates, newTemplate]);
+  };
+
+  const handleUseTemplate = (template: any) => {
+    // Create a new policy from the template
+    setSelectedPolicy(null);
+    const templateToUse = {
+      ...template,
+      name: `${template.name.replace(" Template", "")}`,
+      isTemplate: false,
+      status: "draft",
+      effectiveDate: new Date().toISOString().split("T")[0],
+      modifiedAt: new Date().toISOString().split("T")[0],
+    };
+    setShowCreateModal(true);
+    setShowTemplates(false);
+    // Pass the template data as initialData to the creation modal
+    setSelectedPolicy(templateToUse);
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    setPolicyTemplates(
+      policyTemplates.filter((template) => template.id !== templateId),
+    );
+  };
+
   const handleSavePolicy = (policyData: any) => {
     const currentDate = new Date().toISOString().split("T")[0];
 
@@ -292,11 +326,19 @@ const Home = () => {
   const toggleAnalytics = () => {
     setShowAnalytics(!showAnalytics);
     if (showApprovals) setShowApprovals(false);
+    if (showTemplates) setShowTemplates(false);
   };
 
   const toggleApprovals = () => {
     setShowApprovals(!showApprovals);
     if (showAnalytics) setShowAnalytics(false);
+    if (showTemplates) setShowTemplates(false);
+  };
+
+  const toggleTemplates = () => {
+    setShowTemplates(!showTemplates);
+    if (showAnalytics) setShowAnalytics(false);
+    if (showApprovals) setShowApprovals(false);
   };
 
   const handleViewPolicy = (id: string) => {
@@ -313,12 +355,19 @@ const Home = () => {
         onCreatePolicy={handleCreatePolicy}
         onSettingsClick={toggleAnalytics}
         onNotificationsClick={toggleApprovals}
+        onTemplatesClick={toggleTemplates}
         onSearch={setSearchTerm}
       />
 
       <main className="flex-1 container mx-auto px-4 py-6">
         {showAnalytics ? (
           <PolicyAnalytics policies={policies} />
+        ) : showTemplates ? (
+          <PolicyTemplatesTab
+            templates={policyTemplates}
+            onUseTemplate={handleUseTemplate}
+            onDeleteTemplate={handleDeleteTemplate}
+          />
         ) : showApprovals ? (
           <ApprovalDashboard
             policies={[
@@ -458,6 +507,7 @@ const Home = () => {
             setShowCreateModal(false);
             setSelectedPolicy(null);
           }}
+          onSaveAsTemplate={handleSaveAsTemplate}
         />
       )}
 

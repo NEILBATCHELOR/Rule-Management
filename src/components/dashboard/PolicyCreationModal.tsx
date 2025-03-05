@@ -42,7 +42,11 @@ import WhitelistTransferRule from "./WhitelistTransferRule";
 import VolumeSupplyLimitRule from "./VolumeSupplyLimitRule";
 import InvestorPositionLimitRule from "./InvestorPositionLimitRule";
 import KYCVerificationRule from "./KYCVerificationRule";
+import AMLSanctionsRule from "./AMLSanctionsRule";
 import TransferLimitRule from "./TransferLimitRule";
+import RiskProfileRule from "./RiskProfileRule";
+import AccreditedInvestorRule from "./AccreditedInvestorRule";
+import TokenizedFundRule from "./TokenizedFundRule";
 
 interface PolicyCreationModalProps {
   open?: boolean;
@@ -66,6 +70,24 @@ interface PolicyData {
   reviewFrequency?: string;
   isActive?: boolean;
 }
+
+// Helper function to get risk tolerance label
+const getRiskToleranceLabel = (value: number) => {
+  switch (value) {
+    case 1:
+      return "Conservative";
+    case 2:
+      return "Moderately Conservative";
+    case 3:
+      return "Moderate";
+    case 4:
+      return "Moderately Aggressive";
+    case 5:
+      return "Aggressive";
+    default:
+      return "Moderate";
+  }
+};
 
 const PolicyCreationModal = ({
   open = true,
@@ -427,6 +449,16 @@ const PolicyCreationModal = ({
                       <SelectItem value="kyc_verification">
                         KYC Verification
                       </SelectItem>
+                      <SelectItem value="aml_sanctions">
+                        AML Sanctions Check
+                      </SelectItem>
+                      <SelectItem value="accredited_investor">
+                        Accredited Investor
+                      </SelectItem>
+                      <SelectItem value="risk_profile">Risk Profile</SelectItem>
+                      <SelectItem value="tokenized_fund">
+                        Tokenized Fund
+                      </SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -460,8 +492,24 @@ const PolicyCreationModal = ({
                     <KYCVerificationRule onSave={handleSpecificRuleAdd} />
                   )}
 
+                  {selectedRuleType === "aml_sanctions" && (
+                    <AMLSanctionsRule onSave={handleSpecificRuleAdd} />
+                  )}
+
                   {selectedRuleType === "transfer_limit" && (
                     <TransferLimitRule onSave={handleSpecificRuleAdd} />
+                  )}
+
+                  {selectedRuleType === "risk_profile" && (
+                    <RiskProfileRule onSave={handleSpecificRuleAdd} />
+                  )}
+
+                  {selectedRuleType === "accredited_investor" && (
+                    <AccreditedInvestorRule onSave={handleSpecificRuleAdd} />
+                  )}
+
+                  {selectedRuleType === "tokenized_fund" && (
+                    <TokenizedFundRule onSave={handleSpecificRuleAdd} />
                   )}
 
                   {!selectedRuleType && policyData.rules.length > 0 && (
@@ -561,6 +609,64 @@ const PolicyCreationModal = ({
                                           document types)
                                         </>
                                       );
+                                    case "aml_sanctions":
+                                      return (
+                                        <>
+                                          Sanctions Check:{" "}
+                                          {rule.sanctionsListSource
+                                            .replace("_", " ")
+                                            .toUpperCase()}{" "}
+                                          (Checked{" "}
+                                          {rule.checkFrequency === 1
+                                            ? "daily"
+                                            : rule.checkFrequency === 7
+                                              ? "weekly"
+                                              : `every ${rule.checkFrequency} days`}
+                                          )
+                                        </>
+                                      );
+                                    case "risk_profile":
+                                      return (
+                                        <>
+                                          Risk Profile:{" "}
+                                          {getRiskToleranceLabel(
+                                            rule.riskTolerance,
+                                          )}{" "}
+                                          ({rule.highRiskExposure}% high-risk,{" "}
+                                          {rule.mediumRiskExposure}%
+                                          medium-risk, {rule.lowRiskExposure}%
+                                          low-risk)
+                                        </>
+                                      );
+                                    case "accredited_investor":
+                                      return (
+                                        <>
+                                          Accredited Investor: Net worth $
+                                          {parseInt(
+                                            rule.netWorthThreshold,
+                                          ).toLocaleString()}
+                                          , Income $
+                                          {parseInt(
+                                            rule.individualIncomeThreshold,
+                                          ).toLocaleString()}
+                                          /$
+                                          {parseInt(
+                                            rule.combinedIncomeThreshold,
+                                          ).toLocaleString()}
+                                        </>
+                                      );
+                                    case "tokenized_fund":
+                                      return (
+                                        <>
+                                          Tokenized Fund:{" "}
+                                          {rule.tokenConcentrationCap}% token
+                                          cap,
+                                          {rule.counterpartyExposureLimit}%
+                                          counterparty limit,
+                                          {rule.maxMonthlyDrawdown}% max
+                                          drawdown
+                                        </>
+                                      );
                                     case "transfer_limit":
                                       return (
                                         <>
@@ -593,6 +699,14 @@ const PolicyCreationModal = ({
                                     return "bg-purple-100 text-purple-800";
                                   case "kyc_verification":
                                     return "bg-purple-100 text-purple-800";
+                                  case "aml_sanctions":
+                                    return "bg-red-100 text-red-800";
+                                  case "risk_profile":
+                                    return "bg-orange-100 text-orange-800";
+                                  case "accredited_investor":
+                                    return "bg-green-100 text-green-800";
+                                  case "tokenized_fund":
+                                    return "bg-blue-100 text-blue-800";
                                   case "transfer_limit":
                                     return "bg-blue-100 text-blue-800";
                                   default:
@@ -616,6 +730,14 @@ const PolicyCreationModal = ({
                                     return "Position Limit";
                                   case "kyc_verification":
                                     return "KYC Verification";
+                                  case "aml_sanctions":
+                                    return "AML Sanctions Check";
+                                  case "risk_profile":
+                                    return "Risk Profile";
+                                  case "accredited_investor":
+                                    return "Accredited Investor";
+                                  case "tokenized_fund":
+                                    return "Tokenized Fund";
                                   case "transfer_limit":
                                     return "Transfer Limit";
                                   default:

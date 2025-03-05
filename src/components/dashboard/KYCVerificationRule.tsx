@@ -31,9 +31,7 @@ const KYCVerificationRule = ({
   onSave = () => {},
   initialData,
 }: KYCVerificationRuleProps) => {
-  const [complianceCheckType, setComplianceCheckType] = useState<string>(
-    initialData?.complianceCheckType || "",
-  );
+  const complianceCheckType = "kyc";
   const [verificationMethod, setVerificationMethod] = useState<string>(
     initialData?.verificationMethod || "automatic",
   );
@@ -46,17 +44,11 @@ const KYCVerificationRule = ({
   // Validate form on input changes
   useEffect(() => {
     validateForm();
-  }, [complianceCheckType, verificationMethod, documentTypes]);
+  }, [verificationMethod, documentTypes]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     let valid = true;
-
-    // Compliance Check Type validation
-    if (!complianceCheckType) {
-      newErrors.complianceCheckType = "Compliance check type is required";
-      valid = false;
-    }
 
     // Document Types validation
     if (documentTypes.length === 0) {
@@ -97,57 +89,6 @@ const KYCVerificationRule = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4 space-y-6">
-        {/* Compliance Check Type */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label
-              htmlFor="complianceCheckType"
-              className="text-sm font-medium"
-            >
-              Compliance Check Type
-            </Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                    <Info className="h-4 w-4 text-gray-500" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="w-[200px] text-xs">
-                    Select the type of compliance check to enforce before
-                    transfers.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          <Select
-            value={complianceCheckType}
-            onValueChange={setComplianceCheckType}
-          >
-            <SelectTrigger
-              className={errors.complianceCheckType ? "border-red-500" : ""}
-            >
-              <SelectValue placeholder="Select compliance check type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="kyc">KYC (Know Your Customer)</SelectItem>
-              <SelectItem value="aml">AML (Anti-Money Laundering)</SelectItem>
-              <SelectItem value="accredited_investor">
-                Accredited Investor
-              </SelectItem>
-              <SelectItem value="risk_profile">Risk Profile</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.complianceCheckType && (
-            <p className="text-sm text-red-500 flex items-center gap-1 mt-1">
-              <AlertCircle className="h-3 w-3" />
-              {errors.complianceCheckType}
-            </p>
-          )}
-        </div>
-
         {/* Document Upload Section */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
